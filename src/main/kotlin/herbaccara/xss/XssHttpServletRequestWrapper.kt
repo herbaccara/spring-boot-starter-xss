@@ -5,7 +5,6 @@ import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
 import org.jsoup.Jsoup
-import org.jsoup.safety.Safelist
 import java.io.BufferedReader
 
 class XssHttpServletRequestWrapper(
@@ -14,17 +13,7 @@ class XssHttpServletRequestWrapper(
     private val jsonContentTypes: List<String> = listOf("application/json")
 ) : HttpServletRequestWrapper(request) {
 
-    private fun selflist(): Safelist {
-        return when (level) {
-            Level.NONE -> Safelist.none()
-            Level.SIMPLE_TEXT -> Safelist.simpleText()
-            Level.BASIC -> Safelist.basic()
-            Level.BASIC_WITH_IMAGES -> Safelist.basicWithImages()
-            Level.RELAXED -> Safelist.relaxed()
-        }
-    }
-
-    private fun clean(s: String): String = Jsoup.clean(s, selflist()).ifBlank { "" }
+    private fun clean(s: String): String = Jsoup.clean(s, level.safelist).ifBlank { "" }
 
     override fun getParameter(name: String): String? {
         return super.getParameter(name)?.let(::clean)
