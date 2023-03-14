@@ -29,8 +29,7 @@ class XssServletFilter(
                     }
                 }
             }
-        } else {
-            chain.doFilter(request, response)
         }
+        chain.doFilter(request, response)
     }
 }
