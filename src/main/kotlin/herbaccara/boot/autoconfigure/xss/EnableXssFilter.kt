@@ -7,4 +7,4 @@ import java.lang.annotation.*
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 @Import(XssAutoConfiguration::class)
-annotation class EnableXss
+annotation class EnableXssFilter
