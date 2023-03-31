@@ -37,18 +37,21 @@ class XssServletFilter(
                 val xssFilter = handler.getMethodAnnotation(XssFilter::class.java)
                     ?: AnnotatedElementUtils.findMergedAnnotation(handler.beanType, XssFilter::class.java)
                 if (xssFilter != null) {
+                    val preserve = xssFilter.preserveRelativeLinks
+
                     val safelist = when (xssFilter.level) {
                         XssFilter.Level.NONE -> Safelist.none()
                         XssFilter.Level.SIMPLE_TEXT -> Safelist.simpleText()
                         XssFilter.Level.BASIC -> Safelist.basic()
-                        XssFilter.Level.BASIC_WITH_IMAGES -> Safelist.basicWithImages()
-                        XssFilter.Level.RELAXED -> Safelist.relaxed()
+                        XssFilter.Level.BASIC_WITH_IMAGES -> Safelist.basicWithImages().preserveRelativeLinks(preserve)
+                        XssFilter.Level.RELAXED -> Safelist.relaxed().preserveRelativeLinks(preserve)
                         XssFilter.Level.CUSTOM -> {
                             safelistSupplierMap.getOrPut(xssFilter.safeListClass) {
                                 xssFilter.safeListClass.createInstance()
                             }.get()
                         }
                     }
+
                     if (safelist != null) {
                         filterChain.doFilter(XssHttpServletRequestWrapper(request, safelist), response)
                         return

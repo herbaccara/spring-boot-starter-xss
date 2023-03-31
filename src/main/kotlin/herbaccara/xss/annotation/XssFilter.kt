@@ -9,6 +9,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 annotation class XssFilter(
     val level: Level = Level.NONE,
+    val preserveRelativeLinks: Boolean = false,
     val safeListClass: KClass<out SafelistSupplier> = EmptySafelistSupplier::class
 ) {
 
