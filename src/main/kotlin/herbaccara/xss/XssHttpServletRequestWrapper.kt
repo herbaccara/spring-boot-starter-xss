@@ -1,19 +1,19 @@
 package herbaccara.xss
 
-import herbaccara.xss.annotation.XssFilter.Level
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
 import org.jsoup.Jsoup
+import org.jsoup.safety.Safelist
 import java.io.BufferedReader
 
 class XssHttpServletRequestWrapper(
     request: HttpServletRequest,
-    private val level: Level,
+    private val safelist: Safelist,
     private val jsonContentTypes: List<String> = listOf("application/json")
 ) : HttpServletRequestWrapper(request) {
 
-    private fun clean(s: String): String = Jsoup.clean(s, level.safelist).ifBlank { "" }
+    private fun clean(s: String): String = Jsoup.clean(s, safelist).ifBlank { "" }
 
     override fun getParameter(name: String): String? {
         return super.getParameter(name)?.let(::clean)

@@ -1,18 +1,23 @@
 package herbaccara.xss.annotation
 
-import org.jsoup.safety.Safelist
-import java.lang.annotation.*
+import herbaccara.xss.safelist.EmptySafelistSupplier
+import herbaccara.xss.safelist.SafelistSupplier
+import kotlin.reflect.KClass
 
 @MustBeDocumented
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
-annotation class XssFilter(val level: Level = Level.NONE) {
+annotation class XssFilter(
+    val level: Level = Level.NONE,
+    val safeListClass: KClass<out SafelistSupplier> = EmptySafelistSupplier::class
+) {
 
-    enum class Level(val safelist: Safelist) {
-        NONE(Safelist.none()),
-        SIMPLE_TEXT(Safelist.simpleText()),
-        BASIC(Safelist.basic()),
-        BASIC_WITH_IMAGES(Safelist.basicWithImages()),
-        RELAXED(Safelist.relaxed())
+    enum class Level {
+        NONE,
+        SIMPLE_TEXT,
+        BASIC,
+        BASIC_WITH_IMAGES,
+        RELAXED,
+        CUSTOM
     }
 }
