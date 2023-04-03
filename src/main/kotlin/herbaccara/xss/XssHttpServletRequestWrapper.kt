@@ -5,29 +5,25 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
-import org.jsoup.Jsoup
-import org.jsoup.safety.Safelist
 import java.io.BufferedReader
 
 class XssHttpServletRequestWrapper(
     request: HttpServletRequest,
+    private val clean: (String?) -> String?,
     private val objectMapper: ObjectMapper,
-    private val safelist: Safelist,
     private val jsonContentTypes: List<String> = listOf("application/json")
 ) : HttpServletRequestWrapper(request) {
 
-    private fun clean(s: String): String = Jsoup.clean(s, safelist).ifBlank { "" }
-
     override fun getParameter(name: String): String? {
-        return super.getParameter(name)?.let(::clean)
+        return super.getParameter(name)?.let(clean)
     }
 
-    override fun getParameterValues(name: String): Array<String>? {
-        return super.getParameterValues(name)?.map(::clean)?.toTypedArray()
+    override fun getParameterValues(name: String): Array<String?>? {
+        return super.getParameterValues(name)?.map(clean)?.toTypedArray()
     }
 
     override fun getHeader(name: String): String? {
-        return super.getHeader(name)?.let(::clean)
+        return super.getHeader(name)?.let(clean)
     }
 
     override fun getReader(): BufferedReader {

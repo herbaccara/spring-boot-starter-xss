@@ -10,6 +10,7 @@ import herbaccara.xss.safelist.SafelistSupplier
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.jsoup.Jsoup
 import org.jsoup.safety.Safelist
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.web.filter.OncePerRequestFilter
@@ -56,15 +57,19 @@ class XssServletFilter(
                     }
 
                     if (safelist != null) {
+                        val clean: (String?) -> String? = { text ->
+                            text?.let { Jsoup.clean(it, safelist) }
+                        }
+
                         val objectMapper = jacksonObjectMapper().apply {
                             registerModule(
                                 SimpleModule().apply {
-                                    addDeserializer(String::class.java, StringStdDeserializer(safelist))
+                                    addDeserializer(String::class.java, StringStdDeserializer(clean))
                                 }
                             )
                         }
 
-                        filterChain.doFilter(XssHttpServletRequestWrapper(request, objectMapper, safelist), response)
+                        filterChain.doFilter(XssHttpServletRequestWrapper(request, clean, objectMapper), response)
                         return
                     }
                 }
