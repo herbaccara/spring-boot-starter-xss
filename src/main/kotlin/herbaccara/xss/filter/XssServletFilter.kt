@@ -1,8 +1,11 @@
 package herbaccara.xss.filter
 
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import herbaccara.xss.XssHttpServletRequestWrapper
 import herbaccara.xss.annotation.DisabledXssFilter
 import herbaccara.xss.annotation.XssFilter
+import herbaccara.xss.jackson.StringStdDeserializer
 import herbaccara.xss.safelist.SafelistSupplier
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -53,7 +56,15 @@ class XssServletFilter(
                     }
 
                     if (safelist != null) {
-                        filterChain.doFilter(XssHttpServletRequestWrapper(request, safelist), response)
+                        val objectMapper = jacksonObjectMapper().apply {
+                            registerModule(
+                                SimpleModule().apply {
+                                    addDeserializer(String::class.java, StringStdDeserializer(safelist))
+                                }
+                            )
+                        }
+
+                        filterChain.doFilter(XssHttpServletRequestWrapper(request, objectMapper, safelist), response)
                         return
                     }
                 }

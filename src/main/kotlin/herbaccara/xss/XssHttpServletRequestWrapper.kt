@@ -1,5 +1,7 @@
 package herbaccara.xss
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import jakarta.servlet.ServletInputStream
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletRequestWrapper
@@ -9,6 +11,7 @@ import java.io.BufferedReader
 
 class XssHttpServletRequestWrapper(
     request: HttpServletRequest,
+    private val objectMapper: ObjectMapper,
     private val safelist: Safelist,
     private val jsonContentTypes: List<String> = listOf("application/json")
 ) : HttpServletRequestWrapper(request) {
@@ -39,8 +42,9 @@ class XssHttpServletRequestWrapper(
         val stream = super.getInputStream()
         if (jsonContentTypes.contains(super.getContentType())) {
             return stream.use {
-                val text = it.reader().readText().let(::clean)
-                CachedServletInputStream(text.byteInputStream())
+                val obj = objectMapper.readValue<Any>(it.reader().readText())
+                val json = objectMapper.writeValueAsString(obj)
+                CachedServletInputStream(json.byteInputStream())
             }
         }
         return stream
