@@ -5,6 +5,7 @@ import herbaccara.xss.filter.XssServletFilter
 import jakarta.servlet.Filter
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.AnnotatedElementUtils
@@ -14,8 +15,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 @AutoConfiguration
 @ConditionalOnClass(WebMvcConfigurer::class)
-class XssAutoConfiguration(
-    private val requestMappingHandlerMapping: RequestMappingHandlerMapping
+@EnableConfigurationProperties(XssFilterProperties::class)
+class XssFilterAutoConfiguration(
+    private val requestMappingHandlerMapping: RequestMappingHandlerMapping,
+    private val xssFilterProperties: XssFilterProperties
 ) {
 
     private fun patternsConditionUrls(mappingInfo: RequestMappingInfo): Set<String> {
@@ -41,7 +44,7 @@ class XssAutoConfiguration(
 
         return FilterRegistrationBean<Filter>().apply {
             filter = XssServletFilter(requestMappingHandlerMapping)
-            order = 1
+            order = xssFilterProperties.order
             addUrlPatterns(*urlPatterns.toTypedArray())
         }
     }

@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  herbaccara.boot.autoconfigure.xss.XssAutoConfiguration
+  herbaccara.boot.autoconfigure.xss.XssFilterAutoConfiguration
