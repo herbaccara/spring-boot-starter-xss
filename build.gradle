@@ -6,11 +6,12 @@ plugins {
     id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.7.22'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.7.22'
+    id "org.jetbrains.kotlin.kapt" version "1.7.22"
     id "org.jmailen.kotlinter" version "3.13.0"
 }
 
 group = 'herbaccara'
-version = '0.0.7'
+version = '0.0.8'
 sourceCompatibility = '17'
 
 publishing {
@@ -33,6 +34,13 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+        extendsFrom kapt
+    }
+}
+
 dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
@@ -49,6 +57,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot:3.0.0'
     implementation 'org.springframework.boot:spring-boot-autoconfigure:3.0.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.0.0'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:3.0.0"
+    kapt "org.springframework.boot:spring-boot-configuration-processor:3.0.0"
 
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.3'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
